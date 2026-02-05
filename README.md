@@ -1,11 +1,11 @@
-# MNIST MLP 从零实现
+# 从零实现 MNIST MLP
 
-一个基于 PyTorch 的 MNIST MLP 项目。手写线性层与激活层的前向，损失函数使用数值稳定的 softmax cross entropy，反向使用 autograd，并手写优化器与训练循环。
+一个基于 PyTorch 的 MNIST 手写数字分类的多层感知机（MLP）项目：手写线性层与激活层的前向，损失函数使用数值稳定的 softmax cross entropy，反向使用 autograd，并手写优化器与训练循环。
 
 ## 目录结构
 - `src/`：核心实现（数据、层、模型、损失、优化器、训练与评估）
 - `scripts/`：辅助脚本（数据自检、错误样本与混淆矩阵分析）
-- `data/`：MNIST 数据集目录（本地已下载）
+- `data/`：MNIST 数据集目录（git 忽略）
 - `checkpoints/`：模型保存目录（git 忽略）
 - `logs/`：训练与分析日志目录（git 忽略）
 
@@ -16,12 +16,34 @@
 pip install -r requirements.txt
 ```
 
-## 快速开始
-1. M0/M1 数据自检：
+## MNIST 数据集下载
+
+本项目默认使用 `data/` 作为 MNIST 数据根目录。首次运行时请先准备该目录并下载数据。
+
+1. 创建目录并下载数据
+
+```bash
+mkdir -p data
+python -c "from torchvision.datasets import MNIST; MNIST(root='data', train=True, download=True); MNIST(root='data', train=False, download=True)"
+```
+
+下载完成后，目录结构通常类似：
+
+- `data/MNIST/raw/`：原始压缩文件与解压后的 IDX 文件
+- `data/MNIST/processed/`：torchvision 处理后的缓存文件（如存在）
+
+2. 验证数据可用
+
 ```bash
 python -m scripts.data_sanity --data-dir data
 ```
-2. 训练（默认 AdamW + warmup+cosine）：
+
+## 快速开始
+1. 数据自检：
+```bash
+python -m scripts.data_sanity --data-dir data
+```
+2. 训练：
 ```bash
 python -m src.train --epochs 10
 ```
