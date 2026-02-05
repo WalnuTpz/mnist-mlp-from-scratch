@@ -30,6 +30,28 @@ python -m src.train --epochs 10
 python -m src.train --epochs 10 --no-log-csv
 ```
 
+## 训练命令示例
+- 基线训练（10 个 epoch）：
+```bash
+python -m src.train --epochs 10
+```
+- 自定义隐藏层大小：
+```bash
+python -m src.train --epochs 10 --hidden1 512 --hidden2 256
+```
+- 启用 BatchNorm：
+```bash
+python -m src.train --epochs 10 --batchnorm
+```
+- 调整 Dropout：
+```bash
+python -m src.train --epochs 10 --dropout 0.1
+```
+- 关闭学习率调度：
+```bash
+python -m src.train --epochs 10 --lr-scheduler none
+```
+
 ## 训练输出
 - 最佳模型：`checkpoints/best.pt`
 - 训练曲线：`logs/train.csv`
