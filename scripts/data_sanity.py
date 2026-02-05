@@ -14,6 +14,10 @@ def _print_batch_stats(x: torch.Tensor, y: torch.Tensor) -> None:
     print(f"y shape: {tuple(y.shape)}")
     print(f"x dtype: {x.dtype}")
     print(f"y dtype: {y.dtype}")
+    print(f"x min: {x.min().item():.4f}")
+    print(f"x max: {x.max().item():.4f}")
+    print(f"x mean: {x.mean().item():.4f}")
+    print(f"x std: {x.std().item():.4f}")
 
 
 def main() -> None:

@@ -17,9 +17,20 @@ class DataConfig:
     download: bool = False
 
 
+def _flatten(x):
+    # 将 [1, 28, 28] 展平成 [784]。
+    return x.view(-1)
+
+
 def get_dataloaders(cfg: DataConfig) -> tuple[DataLoader, DataLoader]:
-    # 返回 MNIST 的训练/测试 DataLoader（M0 用于形状与 dtype 检查）。
-    transform = transforms.ToTensor()
+    # 返回 MNIST 的训练/测试 DataLoader（M1：归一化 + 展平）。
+    transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307,), (0.3081,)),
+            transforms.Lambda(_flatten),
+        ]
+    )
 
     train_ds = datasets.MNIST(
         root=str(cfg.data_dir),
@@ -37,7 +48,7 @@ def get_dataloaders(cfg: DataConfig) -> tuple[DataLoader, DataLoader]:
     train_loader = DataLoader(
         train_ds,
         batch_size=cfg.batch_size,
-        shuffle=False,
+        shuffle=True,
         num_workers=cfg.num_workers,
         pin_memory=cfg.pin_memory,
     )
