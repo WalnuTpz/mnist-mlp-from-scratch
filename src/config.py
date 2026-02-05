@@ -12,6 +12,8 @@ class TrainConfig:
     data_dir: Path = Path("data")
     batch_size: int = 128
     epochs: int = 10
+    hidden1: int = 256
+    hidden2: int = 128
     lr: float = 1e-3
     weight_decay: float = 1e-4
     optimizer: str = "adamw"

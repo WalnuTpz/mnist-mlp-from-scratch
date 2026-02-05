@@ -118,6 +118,8 @@ def main() -> None:
     parser.add_argument("--data-dir", type=Path, default=base_cfg.data_dir)
     parser.add_argument("--batch-size", type=int, default=base_cfg.batch_size)
     parser.add_argument("--epochs", type=int, default=base_cfg.epochs)
+    parser.add_argument("--hidden1", type=int, default=base_cfg.hidden1)
+    parser.add_argument("--hidden2", type=int, default=base_cfg.hidden2)
     parser.add_argument("--lr", type=float, default=base_cfg.lr)
     parser.add_argument("--weight-decay", type=float, default=base_cfg.weight_decay)
     parser.add_argument("--optimizer", type=str, default=base_cfg.optimizer, choices=["sgd", "adamw"])
@@ -145,6 +147,8 @@ def main() -> None:
         data_dir=args.data_dir,
         batch_size=args.batch_size,
         epochs=args.epochs,
+        hidden1=args.hidden1,
+        hidden2=args.hidden2,
         lr=args.lr,
         weight_decay=args.weight_decay,
         optimizer=args.optimizer,
@@ -175,7 +179,7 @@ def main() -> None:
     )
     train_loader, test_loader = get_dataloaders(data_cfg)
 
-    model = MLP(dropout=cfg.dropout, batchnorm=cfg.batchnorm).to(device)
+    model = MLP(hidden1=cfg.hidden1, hidden2=cfg.hidden2, dropout=cfg.dropout, batchnorm=cfg.batchnorm).to(device)
     loss_fn = SoftmaxCrossEntropy()
     optimizer = build_optimizer(cfg.optimizer, model.parameters(), cfg.lr, cfg.weight_decay)
 
