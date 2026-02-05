@@ -1,0 +1,85 @@
+# OS / Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+*.egg
+MANIFEST
+
+# Test / coverage / tooling caches
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+.tox/
+.nox/
+.mypy_cache/
+.pytype/
+.ruff_cache/
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs / Editors
+.idea/
+.vscode/
+*.code-workspace
+
+# Cursor (rules, cache, local settings)
+.cursor/
+.cursor-cache/
+.cursorignore
+
+# Logs / temp
+*.log
+*.tmp
+*.bak
+*.swp
+
+# ML artifacts / outputs (keep repo clean)
+runs/
+logs/
+checkpoints/
+artifacts/
+wandb/
+tensorboard/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Data (MNIST downloads etc.)
+data/
+datasets/
+*.npy
+*.npz
+
+# Local-only AI guidance (do NOT push to remote)
+PROJECT_SPEC.md
+docs/ROADMAP.md
+docs/AI_PLAYBOOK.md
+docs/DECISIONS.md
