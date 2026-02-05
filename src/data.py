@@ -6,6 +6,9 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
+MNIST_MEAN = (0.1307,)
+MNIST_STD = (0.3081,)
+
 
 @dataclass(frozen=True)
 class DataConfig:
@@ -27,7 +30,7 @@ def get_dataloaders(cfg: DataConfig) -> tuple[DataLoader, DataLoader]:
     transform = transforms.Compose(
         [
             transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,)),
+            transforms.Normalize(MNIST_MEAN, MNIST_STD),
             transforms.Lambda(_flatten),
         ]
     )
