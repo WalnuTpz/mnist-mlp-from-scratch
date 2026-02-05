@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 from pathlib import Path
 
 import torch
@@ -47,6 +48,25 @@ def train_one_epoch(model, dataloader, loss_fn, optimizer, device: torch.device)
     return total_loss / total_samples
 
 
+def init_csv_logger(log_path: Path) -> None:
+    # 初始化 CSV 训练曲线文件（若不存在则写入表头）。
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    if log_path.exists():
+        return
+    with log_path.open("w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["epoch", "train_loss", "test_loss", "test_acc"])
+
+
+def append_csv_row(
+    log_path: Path, epoch: int, train_loss: float, test_loss: float, test_acc: float
+) -> None:
+    # 追加一行训练曲线数据到 CSV。
+    with log_path.open("a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([epoch, f"{train_loss:.6f}", f"{test_loss:.6f}", f"{test_acc:.6f}"])
+
+
 def save_best_checkpoint(
     save_dir: Path,
     model,
@@ -85,6 +105,8 @@ def main() -> None:
     parser.add_argument("--pin-memory", action="store_true", default=base_cfg.pin_memory)
     parser.add_argument("--download", action="store_true", default=base_cfg.download)
     parser.add_argument("--save-dir", type=Path, default=Path("checkpoints"))
+    parser.add_argument("--log-csv", type=Path, default=Path("logs/train.csv"))
+    parser.add_argument("--no-log-csv", action="store_true")
     args = parser.parse_args()
 
     cfg = TrainConfig(
@@ -101,6 +123,8 @@ def main() -> None:
         download=args.download,
     )
     save_dir = args.save_dir
+    log_csv = args.log_csv
+    enable_csv = not args.no_log_csv
 
     set_seed(cfg.seed)
     device = select_device(cfg.device)
@@ -118,6 +142,8 @@ def main() -> None:
     loss_fn = SoftmaxCrossEntropy()
     optimizer = build_optimizer(cfg.optimizer, model.parameters(), cfg.lr, cfg.weight_decay)
 
+    if enable_csv:
+        init_csv_logger(log_csv)
     best_acc = 0.0
     for epoch in range(1, cfg.epochs + 1):
         train_loss = train_one_epoch(model, train_loader, loss_fn, optimizer, device)
@@ -125,6 +151,8 @@ def main() -> None:
         if test_acc > best_acc:
             best_acc = test_acc
             save_best_checkpoint(save_dir, model, epoch, test_loss, test_acc, cfg)
+        if enable_csv:
+            append_csv_row(log_csv, epoch, train_loss, test_loss, test_acc)
         print(
             "Epoch {}/{} | train loss: {:.4f} | test loss: {:.4f} | test acc: {:.2f}%".format(
                 epoch, cfg.epochs, train_loss, test_loss, test_acc * 100
