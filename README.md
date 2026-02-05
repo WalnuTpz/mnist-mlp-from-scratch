@@ -1,6 +1,6 @@
-# MNIST MLP 从零实现（PyTorch）
+# MNIST MLP 从零实现
 
-一个基于 PyTorch 的“从零实现”风格 MNIST MLP 项目。手写线性层与激活层的前向，损失函数使用数值稳定的 softmax cross entropy，反向使用 autograd，并手写优化器与训练循环。
+一个基于 PyTorch 的 MNIST MLP 项目。手写线性层与激活层的前向，损失函数使用数值稳定的 softmax cross entropy，反向使用 autograd，并手写优化器与训练循环。
 
 ## 目录结构
 - `src/`：核心实现（数据、层、模型、损失、优化器、训练与评估）
