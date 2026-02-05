@@ -45,6 +45,6 @@ python -m scripts.analyze
 - 错误样本图像：`logs/analysis/errors/*.png`
 
 ## 常用参数
-- 训练：`--epochs`、`--batch-size`、`--lr`、`--optimizer`、`--lr-scheduler`、`--warmup-epochs`、`--min-lr`
+- 训练：`--epochs`、`--batch-size`、`--lr`、`--optimizer`、`--dropout`、`--lr-scheduler`、`--warmup-epochs`、`--min-lr`
 - 日志：`--log-csv`、`--no-log-csv`
 - 分析：`--checkpoint`、`--out-dir`、`--max-errors`

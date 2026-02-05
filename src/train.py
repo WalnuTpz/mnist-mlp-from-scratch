@@ -121,6 +121,7 @@ def main() -> None:
     parser.add_argument("--lr", type=float, default=base_cfg.lr)
     parser.add_argument("--weight-decay", type=float, default=base_cfg.weight_decay)
     parser.add_argument("--optimizer", type=str, default=base_cfg.optimizer, choices=["sgd", "adamw"])
+    parser.add_argument("--dropout", type=float, default=base_cfg.dropout)
     parser.add_argument(
         "--lr-scheduler",
         type=str,
@@ -146,6 +147,7 @@ def main() -> None:
         lr=args.lr,
         weight_decay=args.weight_decay,
         optimizer=args.optimizer,
+        dropout=args.dropout,
         lr_scheduler=args.lr_scheduler,
         warmup_epochs=args.warmup_epochs,
         min_lr=args.min_lr,
@@ -171,7 +173,7 @@ def main() -> None:
     )
     train_loader, test_loader = get_dataloaders(data_cfg)
 
-    model = MLP().to(device)
+    model = MLP(dropout=cfg.dropout).to(device)
     loss_fn = SoftmaxCrossEntropy()
     optimizer = build_optimizer(cfg.optimizer, model.parameters(), cfg.lr, cfg.weight_decay)
 
