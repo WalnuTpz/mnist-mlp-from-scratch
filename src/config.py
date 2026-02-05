@@ -16,6 +16,7 @@ class TrainConfig:
     weight_decay: float = 1e-4
     optimizer: str = "adamw"
     dropout: float = 0.1
+    batchnorm: bool = False
     lr_scheduler: str = "warmup_cosine"
     warmup_epochs: int = 1
     min_lr: float = 1e-5

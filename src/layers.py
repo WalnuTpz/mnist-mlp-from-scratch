@@ -53,3 +53,28 @@ class Dropout(nn.Module):
             return x
         mask = torch.rand_like(x) > self.p
         return x * mask / (1.0 - self.p)
+
+
+class BatchNorm1d(nn.Module):
+    # BatchNorm1d 层（特征维归一化）。
+    def __init__(
+        self,
+        num_features: int,
+        eps: float = 1e-5,
+        momentum: float = 0.1,
+        affine: bool = True,
+        track_running_stats: bool = True,
+    ) -> None:
+        # 初始化 BatchNorm1d 参数。
+        super().__init__()
+        self.bn = nn.BatchNorm1d(
+            num_features,
+            eps=eps,
+            momentum=momentum,
+            affine=affine,
+            track_running_stats=track_running_stats,
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # 执行批归一化。
+        return self.bn(x)
