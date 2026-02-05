@@ -47,6 +47,28 @@ def train_one_epoch(model, dataloader, loss_fn, optimizer, device: torch.device)
     return total_loss / total_samples
 
 
+def save_best_checkpoint(
+    save_dir: Path,
+    model,
+    epoch: int,
+    test_loss: float,
+    test_acc: float,
+    cfg: TrainConfig,
+) -> Path:
+    # 保存最佳模型 checkpoint。
+    save_dir.mkdir(parents=True, exist_ok=True)
+    path = save_dir / "best.pt"
+    payload = {
+        "epoch": epoch,
+        "test_loss": test_loss,
+        "test_acc": test_acc,
+        "model_state": model.state_dict(),
+        "train_config": cfg.__dict__,
+    }
+    torch.save(payload, path)
+    return path
+
+
 def main() -> None:
     # 解析参数并执行训练。
     base_cfg = TrainConfig()
@@ -62,6 +84,7 @@ def main() -> None:
     parser.add_argument("--num-workers", type=int, default=base_cfg.num_workers)
     parser.add_argument("--pin-memory", action="store_true", default=base_cfg.pin_memory)
     parser.add_argument("--download", action="store_true", default=base_cfg.download)
+    parser.add_argument("--save-dir", type=Path, default=Path("checkpoints"))
     args = parser.parse_args()
 
     cfg = TrainConfig(
@@ -77,6 +100,7 @@ def main() -> None:
         pin_memory=args.pin_memory,
         download=args.download,
     )
+    save_dir = args.save_dir
 
     set_seed(cfg.seed)
     device = select_device(cfg.device)
@@ -94,9 +118,13 @@ def main() -> None:
     loss_fn = SoftmaxCrossEntropy()
     optimizer = build_optimizer(cfg.optimizer, model.parameters(), cfg.lr, cfg.weight_decay)
 
+    best_acc = 0.0
     for epoch in range(1, cfg.epochs + 1):
         train_loss = train_one_epoch(model, train_loader, loss_fn, optimizer, device)
         test_loss, test_acc = evaluate(model, test_loader, loss_fn, device)
+        if test_acc > best_acc:
+            best_acc = test_acc
+            save_best_checkpoint(save_dir, model, epoch, test_loss, test_acc, cfg)
         print(
             "Epoch {}/{} | train loss: {:.4f} | test loss: {:.4f} | test acc: {:.2f}%".format(
                 epoch, cfg.epochs, train_loss, test_loss, test_acc * 100
