@@ -15,6 +15,9 @@ class TrainConfig:
     lr: float = 1e-3
     weight_decay: float = 1e-4
     optimizer: str = "adamw"
+    lr_scheduler: str = "warmup_cosine"
+    warmup_epochs: int = 1
+    min_lr: float = 1e-5
     seed: int = 42
     device: str = "auto"
     num_workers: int = 0

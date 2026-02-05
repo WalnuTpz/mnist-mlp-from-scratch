@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import math
 from pathlib import Path
 
 import torch
@@ -23,6 +24,27 @@ def build_optimizer(name: str, params, lr: float, weight_decay: float):
     if name == "adamw":
         return AdamW(params, lr=lr, weight_decay=weight_decay)
     raise ValueError(f"未知优化器: {name}")
+
+
+def set_optimizer_lr(optimizer, lr: float) -> None:
+    # 更新优化器学习率。
+    optimizer.lr = lr
+
+
+def compute_warmup_cosine_lr(
+    epoch: int, base_lr: float, warmup_epochs: int, total_epochs: int, min_lr: float
+) -> float:
+    # 计算 warmup + cosine 的学习率。
+    if warmup_epochs <= 0:
+        warmup_epochs = 0
+    if warmup_epochs > 0 and epoch <= warmup_epochs:
+        return base_lr * epoch / warmup_epochs
+    if total_epochs <= warmup_epochs:
+        return base_lr
+    progress = (epoch - warmup_epochs) / (total_epochs - warmup_epochs)
+    progress = min(max(progress, 0.0), 1.0)
+    cosine = 0.5 * (1 + math.cos(math.pi * progress))
+    return min_lr + (base_lr - min_lr) * cosine
 
 
 def train_one_epoch(model, dataloader, loss_fn, optimizer, device: torch.device) -> float:
@@ -99,6 +121,14 @@ def main() -> None:
     parser.add_argument("--lr", type=float, default=base_cfg.lr)
     parser.add_argument("--weight-decay", type=float, default=base_cfg.weight_decay)
     parser.add_argument("--optimizer", type=str, default=base_cfg.optimizer, choices=["sgd", "adamw"])
+    parser.add_argument(
+        "--lr-scheduler",
+        type=str,
+        default=base_cfg.lr_scheduler,
+        choices=["none", "warmup_cosine"],
+    )
+    parser.add_argument("--warmup-epochs", type=int, default=base_cfg.warmup_epochs)
+    parser.add_argument("--min-lr", type=float, default=base_cfg.min_lr)
     parser.add_argument("--seed", type=int, default=base_cfg.seed)
     parser.add_argument("--device", type=str, default=base_cfg.device)
     parser.add_argument("--num-workers", type=int, default=base_cfg.num_workers)
@@ -116,6 +146,9 @@ def main() -> None:
         lr=args.lr,
         weight_decay=args.weight_decay,
         optimizer=args.optimizer,
+        lr_scheduler=args.lr_scheduler,
+        warmup_epochs=args.warmup_epochs,
+        min_lr=args.min_lr,
         seed=args.seed,
         device=args.device,
         num_workers=args.num_workers,
@@ -146,6 +179,11 @@ def main() -> None:
         init_csv_logger(log_csv)
     best_acc = 0.0
     for epoch in range(1, cfg.epochs + 1):
+        if cfg.lr_scheduler == "warmup_cosine":
+            lr = compute_warmup_cosine_lr(
+                epoch, cfg.lr, cfg.warmup_epochs, cfg.epochs, cfg.min_lr
+            )
+            set_optimizer_lr(optimizer, lr)
         train_loss = train_one_epoch(model, train_loader, loss_fn, optimizer, device)
         test_loss, test_acc = evaluate(model, test_loader, loss_fn, device)
         if test_acc > best_acc:
